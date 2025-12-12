@@ -1,4 +1,4 @@
-SDK_VERSION = 16.2
+SDK_VERSION = 15.5
 export TARGET = iphone:clang:$(SDK_VERSION):14.0
 export ARCHS = arm64
 

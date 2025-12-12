@@ -8,7 +8,7 @@ on:
     inputs:
       sdk_version:
         description: "iOS SDK Version"
-        default: "16.4"
+        default: "15.5"
         required: true
         type: string
       uyou_version:
@@ -54,6 +54,12 @@ jobs:
       contents: write
 
     steps:
+      - name: Set Xcode version
+        run: |
+          # xcodes install 14.2 && xcodes select 14.2
+          sudo xcode-select -s /Applications/Xcode_15.0.app
+          xcodebuild -showsdks
+
       - name: Checkout Main
         uses: actions/checkout@v5
         with:
