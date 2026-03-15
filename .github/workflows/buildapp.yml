@@ -122,6 +122,12 @@ jobs:
         env:
           THEOS: ${{ github.workspace }}/theos
 
+      - name: Clone PSHeader
+        run: |
+          git clone https://github.com/PoomSmart/PSHeader.git --depth=1 $THEOS/include/PSHeader
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
       - name: Prepare YouTube iPA
         id: prepare_youtube
         run: |
@@ -144,6 +150,13 @@ jobs:
           cd ${{ github.workspace }}/main
           sed -i '' "s#^BUNDLE_ID = .*#BUNDLE_ID = ${{ env.BUNDLE_ID }}#g" Makefile
           sed -i '' "s#^DISPLAY_NAME = .*#DISPLAY_NAME = ${{ env.APP_NAME }}#g" Makefile
+
+          # add latest headers for YouTubeLegacy and patch YouTubeLegacy includes
+          echo "Cloning upstream YouTubeHeader to sync missing files..."
+          git clone https://github.com/PoomSmart/YouTubeHeader.git --depth=1 PoomHeaders/YouTubeHeaderLegacy/
+          ex -s +'%s/<YouTubeHeader\//<YouTubeHeaderLegacy\//g' +wq Tweaks/YouTubeLegacy/Tweak.x
+          sed -i '' 's|$(TWEAK_NAME)_CFLAGS = -fobjc-arc|$(TWEAK_NAME)_CFLAGS = -fobjc-arc -fmodules -fcxx-modules -I../../PoomHeaders|' Tweaks/YouTubeLegacy/Makefile
+
           make package THEOS_PACKAGE_SCHEME=rootless IPA=Payload/YouTube.app FINALPACKAGE=1
           echo "package=$(ls -t packages | head -n1)" >>$GITHUB_OUTPUT
           echo -e "==> \033[1mSHASUM256: $(shasum -a 256 packages/*.ipa | cut -f1 -d' ')\033[0m"
